@@ -1,0 +1,16 @@
+.page-not-found-content {
+    display: table;
+    margin-left: 10px;
+    height: 100%;
+}
+
+.page-not-found-content h1 {
+    display: table-cell; 
+    vertical-align: middle;
+    text-align: center;
+    font-size: 20px;
+}
+
+.page-not-found-button {
+    background-color: rgba(255,144,0,1);
+}

@@ -1,0 +1,67 @@
+<mat-accordion>
+    <mat-expansion-panel #mep="matExpansionPanel" class="pokemon-search-panel">
+        <mat-expansion-panel-header class="pokemon-search-panel-header">
+            <mat-panel-title *ngIf="!isLoading">SEARCH POKEMON</mat-panel-title>
+            <mat-panel-title *ngIf="isLoading">SEARCHING...</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="pokemon-search-panel-content">
+            <mat-grid-list cols="1" rowHeight="fit" class="pokemon-search-panel-grid">
+                <mat-grid-tile rowspan="1">
+                    <mat-form-field class="pokemon-search-box" color="accent">
+                        <mat-label *ngIf="!isLoading" class="pokemon-search-box-text">SEARCH POKEMON</mat-label>
+                        <mat-label *ngIf="isLoading" class="pokemon-search-box-text">SEARCHING...</mat-label>
+                        <input matInput #searchBox placeholder="Ex. Pikachu">
+                        <button mat-flat-button matSuffix type="button" [disabled]="isLoading" class="pokemon-search-button" (click)="searchPokemon(searchBox.value); mep.expanded = false;">
+                            <mat-icon>search</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile rowspan="1" class="pokemon-search-panel-tile">
+                    <div class="pokemon-search-panel-type-title">
+                        <h1 class="pokemon-search-type-title">SEARCH BY TYPE:</h1>
+                    </div>
+                </mat-grid-tile>
+                <mat-grid-tile rowspan="3" class="pokemon-search-panel-tile">
+                    <mat-grid-list [cols]="searchTypeGridColumnCount" rowHeight="fit" class="pokemon-search-grid">
+                        <mat-grid-tile *ngFor="let pokeType of pokemonAllTypes" class="pokemon-search-tile">
+                            <button mat-flat-button (click)="$event.stopPropagation(); loadByType(pokeType, startOfPage); mep.expanded = false;" class="pokemon-search-type">{{pokeType | uppercase}}</button>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </mat-grid-tile>
+                <mat-grid-tile rowspan="1" class="pokemon-search-panel-tile">
+                    <button mat-flat-button (click)="$event.stopPropagation(); resetPage(); mep.expanded = false;" class="pokemon-search-reset">RESET</button>
+                </mat-grid-tile>
+            </mat-grid-list>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
+
+<div *ngIf="pokemonNotFound" class="pokemon-not-found-content">
+    <h1>POKEMON NOT FOUND!</h1>
+</div>
+
+<mat-grid-list *ngIf="!pokemonNotFound && !isLoading" [cols]="cardGridColumnsCount" [rowHeight]="cardGridRowHeight" class="pokemon-list-grid" (window:resize)="onResize($event)">
+    <mat-grid-tile *ngFor="let pokemon of pokemonsList | paginate: { itemsPerPage: totalPokemonsPerPage, currentPage: pageNumber, totalItems: totalLength }">
+        <span matBadge="{{pokemon.id}}" matBadgeColor="accent">
+            <mat-card class="pokemon-card" [routerLink]="['/pokemon', pokemon.name]">
+                <mat-grid-list cols="1" rowHeight="fit" class="pokemon-card-grid">
+                    <mat-grid-tile cols="1" rowspan="4">
+                        <img mat-card-image [src]="pokemon.src" class="pokemone-card-img">
+                    </mat-grid-tile>
+                    <mat-grid-tile cols="1" rowspan="1" layout-align="center center">
+                        <mat-card-title class="pokemon-name">{{pokemon.name | uppercase}}</mat-card-title>
+                    </mat-grid-tile>
+                    <mat-grid-tile cols="1" rowspan="1" layout-align="center center">
+                        <mat-card-content class="pokemon-type-list">
+                            <button mat-flat-button *ngFor="let pokeType of pokemon.types" (click)="$event.stopPropagation(); loadByType(pokeType.type.name, startOfPage); mep.expanded = false;" class="pokemon-type">{{pokeType.type.name | uppercase}}</button>
+                        </mat-card-content>
+                    </mat-grid-tile>
+                </mat-grid-list>
+            </mat-card>
+        </span>
+    </mat-grid-tile>
+</mat-grid-list>
+
+<div *ngIf="!pokemonNotFound && !isLoading">
+    <pagination-controls class="pokedex-pagination" [responsive]="true" (pageChange)="nextPage((pageNumber = $event))"></pagination-controls>
+</div>
